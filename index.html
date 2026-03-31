@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dash.n1l.ru — личный дашборд</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #03050a;
+            color: #b8c7ff;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: #4682dc;
+            margin-bottom: 2rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(70, 130, 220, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+        }
+        .status-operational {
+            background: rgba(0, 255, 0, 0.2);
+            color: #0f0;
+        }
+        .status-error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #f00;
+        }
+        .commit-chart {
+            display: flex;
+            gap: 0.2rem;
+            align-items: flex-end;
+            height: 150px;
+        }
+        .commit-bar {
+            flex: 1;
+            background: #4682dc;
+            border-radius: 2px;
+            transition: 0.2s;
+        }
+        .commit-bar:hover {
+            opacity: 0.7;
+        }
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #4682dc;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #4682dc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 dash.n1l.ru</h1>
+        <div class="subtitle">личная статистика и мониторинг экосистемы</div>
+
+        <div class="grid" id="dashboard">
+            <div class="loading">загрузка...</div>
+        </div>
+
+        <div class="footer">
+            <a href="https://n1l.ru" style="color:#4682dc;">n1l.ru</a> •
+            <a href="https://go.n1l.ru/github" style="color:#4682dc;">github</a> •
+            обновлено: <span id="timestamp"></span>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
