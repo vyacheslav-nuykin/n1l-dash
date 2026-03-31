@@ -3,10 +3,9 @@ const ECOSYSTEM_API = 'https://api.n1l.ru/v1';
 
 async function loadDashboard() {
     const dashboard = document.getElementById('dashboard');
-    dashboard.innerHTML = '<div class="loading">загрузка данных...</div>';
+    dashboard.innerHTML = '<div class="loading">📡 загрузка данных...</div>';
     
     try {
-        // Параллельно загружаем все данные
         const [userRes, reposRes, eventsRes, statusRes] = await Promise.all([
             fetch(GITHUB_API),
             fetch(`${GITHUB_API}/repos?per_page=100`),
@@ -15,16 +14,14 @@ async function loadDashboard() {
         ]);
         
         const user = await userRes.json();
-        let repos = await reposRes.json();
+        const repos = await reposRes.json();
         const events = await eventsRes.json();
         const status = await statusRes.json();
         
-        // Фильтруем репозитории экосистемы
         const ecosystemRepos = repos.filter(repo => 
             repo.name.startsWith('n1l-') || repo.name.startsWith('1lz-')
         );
         
-        // Считаем коммиты правильно
         const commitsByDay = {};
         const today = new Date();
         
@@ -42,7 +39,6 @@ async function loadDashboard() {
         const sortedDays = Object.keys(commitsByDay).sort();
         const maxCommits = Math.max(...Object.values(commitsByDay), 1);
         
-        // Собираем последние 5 событий
         const recentEvents = events.slice(0, 5).map(event => {
             const typeMap = {
                 'PushEvent': '📤 push',
@@ -54,83 +50,86 @@ async function loadDashboard() {
             return {
                 type: typeMap[event.type] || event.type,
                 repo: event.repo.name.split('/')[1],
-                date: new Date(event.created_at).toLocaleString()
+                date: new Date(event.created_at).toLocaleString('ru-RU')
             };
         });
         
-        // Строим HTML
         dashboard.innerHTML = `
-            <!-- Виджет 1: Профиль -->
             <div class="card">
-                <h2>👤 GitHub профиль</h2>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <img src="${user.avatar_url}&s=80" style="border-radius: 50%; width: 60px;">
-                    <div>
-                        <div style="font-size: 1.2rem; font-weight: 800;">${user.login}</div>
-                        <div style="font-size: 0.8rem; color: #4682dc;">${user.bio || 'разработчик'}</div>
-                        <div style="font-size: 0.7rem; margin-top: 0.3rem;">
-                            📦 ${user.public_repos} репозиториев • 👥 ${user.followers} подписчиков
+                <h2>👤 ПРОФИЛЬ</h2>
+                <div class="profile">
+                    <img class="avatar" src="${user.avatar_url}&s=100" alt="avatar">
+                    <div class="profile-info">
+                        <div class="profile-name">${user.login}</div>
+                        <div class="profile-bio">${user.bio || 'backend developer'}</div>
+                        <div class="profile-stats">
+                            <span>📦 ${user.public_repos}</span>
+                            <span>👥 ${user.followers}</span>
+                            <span>🎯 ${user.following}</span>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Виджет 2: График коммитов -->
             <div class="card">
-                <h2>📈 активность (последние 30 дней)</h2>
-                <div class="commit-chart">
-                    ${sortedDays.map(day => `
-                        <div style="flex:1; text-align:center;">
-                            <div class="commit-bar" style="height: ${(commitsByDay[day] / maxCommits) * 120}px;"></div>
-                            <div style="font-size:0.6rem; margin-top:0.3rem;">${day.slice(5)}</div>
-                            <div style="font-size:0.7rem;">${commitsByDay[day]}</div>
-                        </div>
-                    `).join('')}
+                <h2>📈 АКТИВНОСТЬ (30 ДНЕЙ)</h2>
+                <div class="chart-container">
+                    <div class="commit-chart">
+                        ${sortedDays.map(day => `
+                            <div class="chart-bar-wrapper">
+                                <div class="commit-bar" style="height: ${(commitsByDay[day] / maxCommits) * 130}px;"></div>
+                                <div class="chart-label">${day.slice(5)}</div>
+                                <div class="chart-value">${commitsByDay[day]}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${sortedDays.length === 0 ? '<div style="text-align:center;">нет данных</div>' : ''}
                 </div>
-                ${sortedDays.length === 0 ? '<div style="text-align:center;">нет данных за последние 30 дней</div>' : ''}
             </div>
             
-            <!-- Виджет 3: Статус экосистемы -->
             <div class="card">
-                <h2>🟢 статус сервисов</h2>
+                <h2>🟢 СТАТУС СЕРВИСОВ</h2>
                 ${Object.entries(status.services).map(([name, service]) => `
-                    <div style="margin: 0.5rem 0; display: flex; justify-content: space-between;">
-                        <span>${name}</span>
+                    <div class="service-item">
+                        <span class="service-name">${name}</span>
                         <span class="status-badge status-${service.status}">${service.status}</span>
                     </div>
                 `).join('')}
             </div>
             
-            <!-- Виджет 4: Репозитории экосистемы -->
             <div class="card">
-                <h2>📦 экосистема n1l</h2>
+                <h2>📦 ЭКОСИСТЕМА</h2>
                 ${ecosystemRepos.map(repo => `
-                    <div style="margin: 0.5rem 0; display: flex; justify-content: space-between;">
-                        <span><a href="${repo.html_url}" style="color:#b8c7ff;">${repo.name}</a></span>
-                        <span style="font-size:0.7rem;">
-                            ⭐ ${repo.stargazers_count} • 🍴 ${repo.forks_count}
-                        </span>
+                    <div class="repo-item">
+                        <div class="repo-name">
+                            <a href="${repo.html_url}" target="_blank">${repo.name}</a>
+                        </div>
+                        <div class="repo-meta">
+                            <span>⭐ ${repo.stargazers_count}</span>
+                            <span>🍴 ${repo.forks_count}</span>
+                        </div>
                     </div>
                 `).join('')}
                 ${ecosystemRepos.length === 0 ? '<div>нет репозиториев</div>' : ''}
             </div>
             
-            <!-- Виджет 5: Последние события -->
             <div class="card">
-                <h2>🔄 последние события</h2>
+                <h2>🔄 ПОСЛЕДНИЕ СОБЫТИЯ</h2>
                 ${recentEvents.map(event => `
-                    <div style="margin: 0.5rem 0; font-size:0.8rem;">
-                        ${event.type} <strong>${event.repo}</strong>
-                        <div style="font-size:0.6rem; color:#4682dc;">${event.date}</div>
+                    <div class="event-item">
+                        <div class="event-type">
+                            ${event.type} <span class="event-repo">${event.repo}</span>
+                        </div>
+                        <div class="event-date">${event.date}</div>
                     </div>
                 `).join('')}
             </div>
         `;
         
-        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        document.getElementById('timestamp').textContent = new Date().toLocaleString('ru-RU');
         
     } catch (error) {
-        dashboard.innerHTML = '<div class="loading">ошибка загрузки данных :(</div>';
+        dashboard.innerHTML = '<div class="loading">⚠️ ошибка загрузки данных</div>';
         console.error(error);
     }
 }
