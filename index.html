@@ -2,89 +2,279 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>dash.n1l.ru — личный дашборд</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;300;400;600;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'JetBrains Mono', monospace;
             background: #03050a;
             color: #b8c7ff;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Фоновая сетка как на n1l.ru */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(70, 130, 220, 0.03) 1px, transparent 1px),
+                        linear-gradient(rgba(70, 130, 220, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
             padding: 2rem;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+
+        /* Header */
+        .header {
+            margin-bottom: 2rem;
+            border-left: 3px solid #4682dc;
+            padding-left: 1.5rem;
         }
+
         h1 {
-            font-size: 2rem;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
             margin-bottom: 0.5rem;
         }
+
         .subtitle {
             color: #4682dc;
-            margin-bottom: 2rem;
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
         }
+
+        /* Grid */
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
+
+        /* Cards */
         .card {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(3, 5, 10, 0.7);
+            backdrop-filter: blur(2px);
             border: 1px solid rgba(70, 130, 220, 0.2);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 1.5rem;
+            transition: all 0.3s ease;
         }
+
+        .card:hover {
+            border-color: rgba(70, 130, 220, 0.4);
+            transform: translateY(-2px);
+        }
+
         .card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
             color: #fff;
-            border-left: 3px solid #4682dc;
-            padding-left: 0.5rem;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-        }
-        .status-operational {
-            background: rgba(0, 255, 0, 0.2);
-            color: #0f0;
-        }
-        .status-error {
-            background: rgba(255, 0, 0, 0.2);
-            color: #f00;
-        }
-        .commit-chart {
+            letter-spacing: 0.1em;
             display: flex;
-            gap: 0.2rem;
-            align-items: flex-end;
-            height: 150px;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Profile */
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid #4682dc;
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .profile-bio {
+            font-size: 0.75rem;
+            color: #4682dc;
+            margin: 0.3rem 0;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Chart */
+        .chart-container {
             margin: 1rem 0;
         }
-        .commit-bar {
+
+        .commit-chart {
+            display: flex;
+            gap: 0.25rem;
+            align-items: flex-end;
+            height: 160px;
+            margin: 1rem 0;
+        }
+
+        .chart-bar-wrapper {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .commit-bar {
+            width: 100%;
             background: #4682dc;
-            border-radius: 2px;
+            border-radius: 3px;
+            transition: 0.2s;
+            cursor: pointer;
+            min-height: 2px;
+        }
+
+        .commit-bar:hover {
+            background: #6a9eff;
+            transform: scaleX(1.05);
+        }
+
+        .chart-label {
+            font-size: 0.55rem;
+            color: #4682dc;
+            writing-mode: horizontal-tb;
+        }
+
+        .chart-value {
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+
+        /* Status */
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(70, 130, 220, 0.1);
+        }
+
+        .service-item:last-child {
+            border-bottom: none;
+        }
+
+        .service-name {
+            font-size: 0.85rem;
+        }
+
+        .status-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-operational {
+            background: rgba(0, 255, 0, 0.15);
+            color: #0f0;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+        }
+
+        .status-error {
+            background: rgba(255, 0, 0, 0.15);
+            color: #f00;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        /* Repo list */
+        .repo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(70, 130, 220, 0.1);
+        }
+
+        .repo-name a {
+            color: #b8c7ff;
+            text-decoration: none;
+            font-size: 0.85rem;
             transition: 0.2s;
         }
-        .commit-bar:hover {
-            opacity: 0.7;
-        }
-        a {
+
+        .repo-name a:hover {
             color: #4682dc;
-            text-decoration: none;
         }
-        a:hover {
-            text-decoration: underline;
+
+        .repo-meta {
+            display: flex;
+            gap: 0.8rem;
+            font-size: 0.7rem;
         }
+
+        /* Events */
+        .event-item {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(70, 130, 220, 0.1);
+        }
+
+        .event-type {
+            font-size: 0.8rem;
+        }
+
+        .event-repo {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .event-date {
+            font-size: 0.6rem;
+            color: #4682dc;
+            margin-top: 0.2rem;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #4682dc;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
         .footer {
             margin-top: 2rem;
             text-align: center;
@@ -93,28 +283,56 @@
             border-top: 1px solid rgba(70, 130, 220, 0.2);
             padding-top: 1.5rem;
         }
+
         .footer a {
             color: #4682dc;
+            text-decoration: none;
+            margin: 0 0.5rem;
         }
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #4682dc;
+
+        .footer a:hover {
+            text-decoration: underline;
         }
-        @media (max-width: 700px) {
-            body {
+
+        /* Responsive */
+        @media (max-width: 800px) {
+            .container {
                 padding: 1rem;
             }
             .grid {
                 grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .card {
+                padding: 1rem;
+            }
+            .commit-chart {
+                height: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile {
+                flex-direction: column;
+                text-align: center;
+            }
+            .profile-stats {
+                justify-content: center;
+            }
+            .repo-meta {
+                flex-direction: column;
+                gap: 0.2rem;
+                align-items: flex-end;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 dash.n1l.ru</h1>
-        <div class="subtitle">личная статистика и мониторинг экосистемы</div>
+        <div class="header">
+            <h1>📊 dash.n1l.ru</h1>
+            <div class="subtitle">личная статистика • мониторинг экосистемы</div>
+        </div>
 
         <div class="grid" id="dashboard">
             <div class="loading">загрузка данных...</div>
@@ -122,9 +340,9 @@
 
         <div class="footer">
             <a href="https://n1l.ru">n1l.ru</a> •
-            <a href="https://go.n1l.ru/github">github</a> •
-            <a href="https://wiki.n1l.ru">wiki</a> •
-            <a href="https://api.n1l.ru/v1/status.json">api</a>
+            <a href="https://go.n1l.ru/github">go.n1l.ru</a> •
+            <a href="https://wiki.n1l.ru">wiki.n1l.ru</a> •
+            <a href="https://api.n1l.ru/v1/status.json">api.n1l.ru</a>
             <br>
             обновлено: <span id="timestamp"></span>
         </div>
